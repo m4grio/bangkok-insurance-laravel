@@ -4,6 +4,8 @@ namespace m4grio\BangkokInsurance\Laravel\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use m4grio\BangkokInsurance\ClientBuilder;
+use m4grio\BangkokInsurance\Process\ModelProcess;
+use m4grio\BangkokInsurance\Process\PremiumProcess;
 
 
 /**
@@ -22,6 +24,8 @@ class BangkokInsuranceServiceProvider extends ServiceProvider
     protected $defer = true;
 
     const BUILDER = 'bangkokinsurance-builder';
+    const PREMIUM = 'bangkokinsurance-premium';
+    const MODEL   = 'bangkokinsurance-model';
     const CONFIG  = 'bangkokinsurance';
 
     /**
@@ -31,17 +35,36 @@ class BangkokInsuranceServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton(self::PROVIDES, function ($app) {
+        $this->app->bind(self::BUILDER, function ($app) {
             $config = $app['config'][self::CONFIG];
 
-            $builder =  (new ClientBuilder)
-                ->setEndpoint($config['endpoint'])
+            $builder = (new ClientBuilder)->setEndpoint($config['endpoint'])
                 ->setUserId($config['userid'])
                 // @todo
                 //->setLog(\Illuminate\Support\Facades\Log::getMonolog())
-                ;
+            ;
 
             return $builder;
+        });
+
+        $this->app->singleton(self::PREMIUM, function ($app) {
+            /** @var ClientBuilder $builder */
+            $builder = $app->make(self::BUILDER);
+            $client = $builder->setProcess(new PremiumProcess)
+                ->build()
+            ;
+
+            return $client;
+        });
+
+        $this->app->singleton(self::MODEL, function ($app) {
+            /** @var ClientBuilder $builder */
+            $builder = $app->make(self::BUILDER);
+            $client = $builder->setProcess(new ModelProcess)
+                ->build()
+            ;
+
+            return $client;
         });
     }
 
@@ -52,6 +75,8 @@ class BangkokInsuranceServiceProvider extends ServiceProvider
     {
         return [
             self::BUILDER,
+            self::PREMIUM,
+            self::MODEL,
         ];
     }
 }
