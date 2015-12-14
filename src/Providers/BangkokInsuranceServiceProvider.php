@@ -35,6 +35,18 @@ class BangkokInsuranceServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->registerBuilder();
+        $this->registerPremiumBuilder();
+        $this->registerModelBuilder();
+    }
+
+    /**
+     * Register general builder
+     *
+     * @return void
+     */
+    protected function registerBuilder()
+    {
         $this->app->bind(self::BUILDER, function ($app) {
             $config = $app['config'][self::CONFIG];
 
@@ -46,7 +58,13 @@ class BangkokInsuranceServiceProvider extends ServiceProvider
 
             return $builder;
         });
+    }
 
+    /**
+     * Register Premium Client builder
+     */
+    protected function registerPremiumBuilder()
+    {
         $this->app->singleton(self::PREMIUM, function ($app) {
             /** @var ClientBuilder $builder */
             $builder = $app->make(self::BUILDER);
@@ -56,7 +74,13 @@ class BangkokInsuranceServiceProvider extends ServiceProvider
 
             return $client;
         });
+    }
 
+    /**
+     * Register Model Client builder
+     */
+    protected function registerModelBuilder()
+    {
         $this->app->singleton(self::MODEL, function ($app) {
             /** @var ClientBuilder $builder */
             $builder = $app->make(self::BUILDER);
