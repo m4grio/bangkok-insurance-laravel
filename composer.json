@@ -22,11 +22,5 @@
   "require-dev": {
     "phpunit/phpunit": "^5.1"
   },
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "git@github.com:m4grio/bangkok-insurance-php.git"
-    }
-  ],
   "minimum-stability": "dev"
 }
