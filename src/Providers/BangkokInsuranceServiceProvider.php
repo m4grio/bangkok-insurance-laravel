@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use m4grio\BangkokInsurance\ClientBuilder;
 use m4grio\BangkokInsurance\Process\ModelProcess;
 use m4grio\BangkokInsurance\Process\PremiumProcess;
+use m4grio\BangkokInsurance\Process\TransferProcess;
 
 
 /**
@@ -26,6 +27,7 @@ class BangkokInsuranceServiceProvider extends ServiceProvider
     const BUILDER = 'bangkokinsurance-builder';
     const PREMIUM = 'bangkokinsurance-premium';
     const MODEL   = 'bangkokinsurance-model';
+    const TRANSFER = 'bangkokinsurance-transfer';
     const CONFIG  = 'bangkokinsurance';
 
     /**
@@ -38,6 +40,7 @@ class BangkokInsuranceServiceProvider extends ServiceProvider
         $this->registerBuilder();
         $this->registerPremiumBuilder();
         $this->registerModelBuilder();
+        $this->registerTransferBuilder();
     }
 
     /**
@@ -93,6 +96,22 @@ class BangkokInsuranceServiceProvider extends ServiceProvider
     }
 
     /**
+     * Register Transfer Client builder
+     */
+    protected function registerTransferBuilder()
+    {
+        $this->app->singleton(self::TRANSFER, function ($app) {
+            /** @var ClientBuilder $builder */
+            $builder = $app->make(self::BUILDER);
+            $client = $builder->setProcess(new TransferProcess)
+                ->build()
+            ;
+
+            return $client;
+        });
+    }
+
+    /**
      * @return array
      */
     public function provides()
@@ -101,6 +120,7 @@ class BangkokInsuranceServiceProvider extends ServiceProvider
             self::BUILDER,
             self::PREMIUM,
             self::MODEL,
+            self::TRANSFER,
         ];
     }
 }
