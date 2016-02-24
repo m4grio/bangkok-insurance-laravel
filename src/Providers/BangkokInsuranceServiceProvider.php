@@ -8,7 +8,6 @@ use m4grio\BangkokInsurance\Process\ModelProcess;
 use m4grio\BangkokInsurance\Process\PremiumProcess;
 use m4grio\BangkokInsurance\Process\TransferProcess;
 
-
 /**
  * Bangkok Insurance Service Provider
  *
@@ -28,7 +27,10 @@ class BangkokInsuranceServiceProvider extends ServiceProvider
     const PREMIUM = 'bangkokinsurance-premium';
     const MODEL   = 'bangkokinsurance-model';
     const TRANSFER = 'bangkokinsurance-transfer';
-    const CONFIG  = 'bangkokinsurance';
+    const CONFIG_NAMESPACE  = 'bangkokinsurance';
+    const CONFIG_USERID     = 'userid';
+    const CONFIG_AGENT_CODE = 'agent_code';
+    const CONFIG_AGENT_SEQ  = 'agent_seq';
 
     /**
      * Prepares a builder using the most generic configs
@@ -50,11 +52,13 @@ class BangkokInsuranceServiceProvider extends ServiceProvider
      */
     protected function registerBuilder()
     {
-        $this->app->bind(self::BUILDER, function ($app) {
-            $config = $app['config'][self::CONFIG];
+        $this->app->bind(static::BUILDER, function ($app) {
+            $config = $app['config'][static::CONFIG];
 
             $builder = (new ClientBuilder)->setEndpoint($config['endpoint'])
-                ->setUserId($config['userid'])
+                ->setUserId($config[static::CONFIG_USERID])
+                ->setAgentSeq($config[static::CONFIG_AGENT_SEQ])
+                ->setAgentCode($config[static::CONFIG_AGENT_CODE])
                 // @todo
                 //->setLog(\Illuminate\Support\Facades\Log::getMonolog())
             ;
@@ -68,9 +72,9 @@ class BangkokInsuranceServiceProvider extends ServiceProvider
      */
     protected function registerPremiumBuilder()
     {
-        $this->app->singleton(self::PREMIUM, function ($app) {
+        $this->app->singleton(static::PREMIUM, function ($app) {
             /** @var ClientBuilder $builder */
-            $builder = $app->make(self::BUILDER);
+            $builder = $app->make(static::BUILDER);
             $client = $builder->setProcess(new PremiumProcess)
                 ->build()
             ;
@@ -84,9 +88,9 @@ class BangkokInsuranceServiceProvider extends ServiceProvider
      */
     protected function registerModelBuilder()
     {
-        $this->app->singleton(self::MODEL, function ($app) {
+        $this->app->singleton(static::MODEL, function ($app) {
             /** @var ClientBuilder $builder */
-            $builder = $app->make(self::BUILDER);
+            $builder = $app->make(static::BUILDER);
             $client = $builder->setProcess(new ModelProcess)
                 ->build()
             ;
@@ -100,9 +104,9 @@ class BangkokInsuranceServiceProvider extends ServiceProvider
      */
     protected function registerTransferBuilder()
     {
-        $this->app->singleton(self::TRANSFER, function ($app) {
+        $this->app->singleton(static::TRANSFER, function ($app) {
             /** @var ClientBuilder $builder */
-            $builder = $app->make(self::BUILDER);
+            $builder = $app->make(static::BUILDER);
             $client = $builder->setProcess(new TransferProcess)
                 ->build()
             ;
@@ -117,10 +121,10 @@ class BangkokInsuranceServiceProvider extends ServiceProvider
     public function provides()
     {
         return [
-            self::BUILDER,
-            self::PREMIUM,
-            self::MODEL,
-            self::TRANSFER,
+            static::BUILDER,
+            static::PREMIUM,
+            static::MODEL,
+            static::TRANSFER,
         ];
     }
 }
